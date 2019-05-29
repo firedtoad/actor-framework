@@ -20,11 +20,12 @@
 
 #include "caf/config.hpp"
 
-#include <thread>
+#include <condition_variable>
 #include <limits>
 #include <memory>
-#include <condition_variable>
+#include <thread>
 
+#include "caf/detail/cleanup_and_release.hpp"
 #include "caf/detail/set_thread_name.hpp"
 #include "caf/detail/thread_safe_actor_clock.hpp"
 #include "caf/scheduler/abstract_coordinator.hpp"
@@ -136,7 +137,7 @@ protected:
       w->get_thread().join();
     }
     // run cleanup code for each resumable
-    auto f = &abstract_coordinator::cleanup_and_release;
+    detail::cleanup_and_release f{system_};
     for (auto& w : workers_)
       policy_.foreach_resumable(w.get(), f);
     policy_.foreach_central_resumable(this, f);
@@ -172,4 +173,3 @@ private:
 
 } // namespace scheduler
 } // namespace caf
-

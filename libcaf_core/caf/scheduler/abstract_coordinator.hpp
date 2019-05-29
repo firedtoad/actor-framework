@@ -86,8 +86,6 @@ public:
 
   void* subtype_ptr() override;
 
-  static void cleanup_and_release(resumable*);
-
   virtual actor_clock& clock() noexcept = 0;
 
 protected:

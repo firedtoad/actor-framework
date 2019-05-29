@@ -36,6 +36,7 @@
 
 #include "caf/detail/call_cfun.hpp"
 #include "caf/detail/socket_guard.hpp"
+#include "caf/detail/cleanup_and_release.hpp"
 
 #include "caf/scheduler/abstract_coordinator.hpp"
 
@@ -642,8 +643,9 @@ default_multiplexer::~default_multiplexer() {
   // flush pipe before closing it
   nonblocking(pipe_.first, true);
   auto ptr = pipe_reader_.try_read_next();
+  detail::cleanup_and_release f{*system_};
   while (ptr != nullptr) {
-    scheduler::abstract_coordinator::cleanup_and_release(ptr);
+    f(ptr);
     ptr = pipe_reader_.try_read_next();
   }
   // do cleanup for pipe reader manually, since WSACleanup needs to happen last
